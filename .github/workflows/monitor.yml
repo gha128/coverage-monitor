@@ -25,6 +25,8 @@ jobs:
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           EXTRA_FEEDS: ${{ secrets.EXTRA_FEEDS }}
+          LOCAL_HOSPICES: ${{ secrets.LOCAL_HOSPICES }}
+          SECTOR_TERMS: ${{ secrets.SECTOR_TERMS }}
         run: python monitor.py docs
       - name: Save results
         run: |

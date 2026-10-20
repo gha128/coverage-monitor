@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""Media monitor: checks news and public social feeds for mentions of the hospice.
+"""Media monitor: checks news and public social feeds for hospice news.
 
-Each run fetches the feeds in FEEDS, keeps items that match, and for anything not
-seen before: appends it to log.md, rebuilds index.html, and sends a push
-notification (ntfy) for name matches. Context matches (hospice funding generally)
-are logged but not pushed.
+Three levels:
+  pah     mentions of Princess Alice Hospice. The only level that sends alerts.
+  local   named neighbouring hospices (LOCAL_HOSPICES)
+  sector  UK hospice funding, policy and service news (SECTOR_TERMS)
+
+Each run fetches the feeds, keeps items that match, and for anything not seen
+before: appends it to log.md, rebuilds index.html, and sends a push notification
+(ntfy) for fresh PAH items.
 
 Usage:
     python3 monitor.py OUTPUT_DIR [--seed]
@@ -12,11 +16,13 @@ Usage:
 --seed marks everything currently in the feeds as seen without notifying, so the
 first real run only reports new items. A run with no state.json seeds automatically.
 
-Environment:
-    NTFY_TOPIC   ntfy.sh topic to push to (optional; no push if unset)
-    NTFY_SERVER  defaults to https://ntfy.sh
-    MAC_NOTIFY   set to 1 to also show a macOS notification
-    EXTRA_FEEDS  extra RSS URLs separated by spaces, e.g. Google Alerts feeds
+Environment (search terms are kept out of the repository as secrets):
+    LOCAL_HOSPICES  hospice names separated by |
+    SECTOR_TERMS    search words separated by |, e.g. funding|closure|cuts
+    NTFY_TOPIC      ntfy.sh topic to push to (optional; no push if unset)
+    NTFY_SERVER     defaults to https://ntfy.sh
+    MAC_NOTIFY      set to 1 to also show a macOS notification
+    EXTRA_FEEDS     extra RSS URLs separated by spaces, e.g. Google Alerts feeds
 """
 import email.utils
 import html
@@ -31,16 +37,29 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 
 NAME = '"Princess Alice Hospice"'
+LOCAL = [n.strip() for n in os.environ.get("LOCAL_HOSPICES", "").split("|") if n.strip()]
+SECTOR = [t.strip() for t in os.environ.get("SECTOR_TERMS", "").split("|") if t.strip()]
 
-def search(base, **params):
-    return base + "?" + urllib.parse.urlencode(params)
+# How far back each level looks, and how fresh a PAH item must be to alert
+MAX_AGE = {"pah": timedelta(days=30), "local": timedelta(days=14), "sector": timedelta(days=14)}
+ALERT_AGE = timedelta(days=2)
 
-# (label, kind, url). kind 'search' feeds are already filtered by the query;
-# kind 'outlet' feeds are an outlet's full news feed and are matched locally.
+
+def google(q, days):
+    return "https://news.google.com/rss/search?" + urllib.parse.urlencode(
+        {"q": f"{q} when:{days}d", "hl": "en-GB", "gl": "GB", "ceid": "GB:en"})
+
+
+def quoted(names):
+    return "(" + " OR ".join(f'"{n}"' for n in names) + ")"
+
+
+# (label, kind, url). 'pah', 'local' and 'sector' feeds are searches for that level;
+# 'outlet' feeds are an outlet's full news feed, sorted into levels locally.
 FEEDS = [
-    ("Google News", "search", search("https://news.google.com/rss/search", q=NAME + " when:30d", hl="en-GB", gl="GB", ceid="GB:en")),
-    ("Bing News", "search", search("https://www.bing.com/news/search", q=NAME, format="rss")),
-    ("Reddit", "search", search("https://www.reddit.com/search.rss", q=NAME, sort="new")),
+    ("Google News", "pah", google(NAME, 30)),
+    ("Bing News", "pah", "https://www.bing.com/news/search?" + urllib.parse.urlencode({"q": NAME, "format": "rss"})),
+    ("Reddit", "pah", "https://www.reddit.com/search.rss?" + urllib.parse.urlencode({"q": NAME, "sort": "new"})),
     ("Surrey Live", "outlet", "https://www.getsurrey.co.uk/news/?service=rss"),
     ("Surrey Comet", "outlet", "https://www.surreycomet.co.uk/news/rss/"),
     ("Richmond & Twickenham Times", "outlet", "https://www.richmondandtwickenhamtimes.co.uk/news/rss/"),
@@ -48,15 +67,17 @@ FEEDS = [
     ("MyLondon", "outlet", "https://www.mylondon.news/news/?service=rss"),
     ("BBC Surrey", "outlet", "https://feeds.bbci.co.uk/news/england/surrey/rss.xml"),
 ]
+if LOCAL:
+    FEEDS.append(("Google News", "local", google(quoted(LOCAL), 14)))
+if SECTOR:
+    FEEDS.append(("Google News", "sector", google("hospice (" + " OR ".join(SECTOR) + ")", 14)))
 for i, url in enumerate(os.environ.get("EXTRA_FEEDS", "").split()):
-    FEEDS.append((f"Google Alert {i + 1}", "search", url))
+    FEEDS.append((f"Google Alert {i + 1}", "pah", url))
 
-# Older items are ignored: the search feeds return years of archive by relevance
-MAX_AGE = timedelta(days=30)
-ALERT_AGE = timedelta(days=2)
-
-NAME_RE = re.compile(r"princess alice|\bPAH\b.*hospice|esher hospice", re.I)
-CONTEXT_RE = re.compile(r"\bhospices?\b", re.I)
+PAH_RE = re.compile(r"princess alice|esher hospice", re.I)
+LOCAL_RE = re.compile("|".join(re.escape(n) for n in LOCAL), re.I) if LOCAL else None
+HOSPICE_RE = re.compile(r"\bhospices?\b", re.I)
+LEVELS = [("pah", "PAH"), ("local", "Local hospices"), ("sector", "Sector")]
 
 ATOM = "{http://www.w3.org/2005/Atom}"
 UA = {"User-Agent": "Mozilla/5.0 (Macintosh) media-monitor"}
@@ -107,11 +128,39 @@ def when(raw):
 
 def classify(kind, item):
     blob = f"{item['title']} {item['summary']}"
-    if kind == "search" or NAME_RE.search(blob):
-        return "name"
-    if CONTEXT_RE.search(blob):
-        return "context"
+    title = item["title"]
+    if kind == "pah" or PAH_RE.search(blob):
+        return "pah"
+    if LOCAL_RE and LOCAL_RE.search(blob):
+        return "local"
+    # Google's OR matching is loose, so search results must at least say 'hospice' in the title
+    if kind == "local" and HOSPICE_RE.search(title):
+        return "local"
+    if kind in ("sector", "outlet") and HOSPICE_RE.search(title if kind == "sector" else blob):
+        return "sector"
     return None
+
+
+def norm(title):
+    # Cross-posts and syndicated copies share a title but not a link
+    return re.sub(r"[^a-z0-9]+", " ", title.lower()).strip()
+
+
+def published(it):
+    dt = when(it.get("date", ""))
+    return dt or datetime.fromisoformat(it["seen"])
+
+
+def level(it):
+    # Items saved before the levels existed used 'name' and 'context'
+    return {"name": "pah", "context": "sector"}.get(it["level"], it["level"])
+
+
+def dedupe(items):
+    keep = {}
+    for k, v in sorted(items.items(), key=lambda kv: published(kv[1])):
+        keep.setdefault(norm(v["title"]) or k, (k, v))
+    return dict(keep.values())
 
 
 def push(item):
@@ -132,45 +181,44 @@ def push(item):
         subprocess.run(["osascript", "-e", f'display notification "{title}" with title "PAH mention" subtitle "{item["source"]}"'], check=False)
 
 
-def norm(title):
-    # Cross-posts and syndicated copies share a title but not a link
-    return re.sub(r"[^a-z0-9]+", " ", title.lower()).strip()
-
-
-def dedupe(items):
-    keep = {}
-    for k, v in sorted(items.items(), key=lambda kv: published(kv[1])):
-        keep.setdefault(norm(v["title"]) or k, (k, v))
-    return dict(keep.values())
-
-
-def published(it):
-    dt = when(it.get("date", ""))
-    return dt or datetime.fromisoformat(it["seen"])
-
-
 def render(out, items):
+    counts = {k: sum(1 for i in items if level(i) == k) for k, _ in LEVELS}
+    buttons = "".join(
+        f'<button data-level="{k}">{label} <span>{counts[k]}</span></button>' for k, label in LEVELS)
     rows = []
-    for it in sorted(items, key=published, reverse=True)[:300]:
+    for it in sorted(items, key=published, reverse=True)[:500]:
         rows.append(
-            f'<tr class="{it["level"]}"><td>{published(it).strftime("%d %b %Y %H:%M")}</td>'
+            f'<tr data-level="{level(it)}"><td>{published(it).strftime("%d %b %Y %H:%M")}</td>'
             f'<td>{html.escape(it["source"])}</td>'
-            f'<td><a href="{html.escape(it["link"])}" rel="noopener">{html.escape(it["title"])}</a></td>'
-            f'<td>{"Name" if it["level"] == "name" else "Context"}</td></tr>'
+            f'<td><a href="{html.escape(it["link"])}" rel="noopener">{html.escape(it["title"])}</a></td></tr>'
         )
     page = f"""<!doctype html><html lang="en-GB"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
 <title>Media monitor</title><meta http-equiv="refresh" content="600">
 <style>
-:root{{--bg:#fff;--fg:#111;--muted:#666;--line:#ddd;--ctx:#888}}
-@media (prefers-color-scheme:dark){{:root{{--bg:#111;--fg:#eee;--muted:#aaa;--line:#333;--ctx:#999}}}}
+:root{{--bg:#fff;--fg:#111;--muted:#666;--line:#ddd;--btn:#f2f2f2;--on:#111;--onfg:#fff}}
+@media (prefers-color-scheme:dark){{:root{{--bg:#111;--fg:#eee;--muted:#aaa;--line:#333;--btn:#222;--on:#eee;--onfg:#111}}}}
 body{{background:var(--bg);color:var(--fg);font:15px/1.4 Arial,sans-serif;margin:0 auto;max-width:1000px;padding:16px}}
 table{{border-collapse:collapse;width:100%}}td,th{{border-bottom:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}}
-a{{color:inherit}}tr.context td{{color:var(--ctx)}}p{{color:var(--muted)}}
+td:first-child{{white-space:nowrap}}a{{color:inherit}}p{{color:var(--muted)}}
+nav{{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}}
+button{{background:var(--btn);border:1px solid var(--line);border-radius:6px;color:var(--fg);cursor:pointer;font:inherit;padding:6px 12px}}
+button[aria-pressed=true]{{background:var(--on);color:var(--onfg)}}button span{{opacity:.7}}
+@media (max-width:600px){{td:nth-child(2),th:nth-child(2){{display:none}}}}
 </style></head><body><h1>Media monitor</h1>
-<p>Checked {datetime.now(timezone.utc).strftime('%d %B %Y %H:%M')} UTC. Public news and social feeds. Last 30 days only. 'Context' rows mention hospices generally.</p>
-<table><thead><tr><th>Published</th><th>Source</th><th>Item</th><th>Match</th></tr></thead><tbody>
-{''.join(rows)}</tbody></table></body></html>"""
+<p>Checked {datetime.now(timezone.utc).strftime('%d %B %Y %H:%M')} UTC. Public news and social feeds. PAH: last 30 days. Local hospices and sector: last 14 days.</p>
+<nav>{buttons}<button data-level="all">All</button></nav>
+<table><thead><tr><th>Published</th><th>Source</th><th>Item</th></tr></thead><tbody>
+{''.join(rows)}</tbody></table>
+<p id="empty" hidden>Nothing in this view.</p>
+<script>
+const btns=[...document.querySelectorAll('nav button')],rows=[...document.querySelectorAll('tbody tr')];
+function show(l){{let n=0;rows.forEach(r=>{{const on=l==='all'||r.dataset.level===l;r.hidden=!on;n+=on}});
+btns.forEach(b=>b.setAttribute('aria-pressed',b.dataset.level===l));document.getElementById('empty').hidden=n>0;
+try{{localStorage.setItem('level',l)}}catch(e){{}}}}
+btns.forEach(b=>b.onclick=()=>show(b.dataset.level));
+let start='pah';try{{start=localStorage.getItem('level')||'pah'}}catch(e){{}}show(start);
+</script></body></html>"""
     with open(os.path.join(out, "index.html"), "w", encoding="utf-8") as f:
         f.write(page)
 
@@ -184,31 +232,28 @@ def main():
     # The first run only records what is already out there, so nobody gets 60 alerts
     seed = "--seed" in sys.argv or not os.path.exists(state_path)
     state = json.load(open(state_path)) if os.path.exists(state_path) else {"items": {}}
-    seen = state["items"]
-    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    cutoff = datetime.now(timezone.utc) - MAX_AGE
-    # Drop anything that has aged out, so the page and state only hold the last 30 days
-    seen = state["items"] = dedupe({k: v for k, v in seen.items() if published(v) >= cutoff})
+    now_dt = datetime.now(timezone.utc)
+    now = now_dt.isoformat(timespec="seconds")
+    fresh = lambda it: published(it) >= now_dt - MAX_AGE[level(it)]
+    # Drop anything that has aged out, so the page and state only hold the look-back window
+    seen = state["items"] = dedupe({k: v for k, v in state["items"].items() if fresh(v)})
     titles = {norm(v["title"]) for v in seen.values()}
     new = []
     for source, kind, url in FEEDS:
         try:
             items = list(parse(fetch(url)))
         except Exception as e:  # one bad feed shouldn't stop the run
-            print(f"{source}: {e}", file=sys.stderr)
+            print(f"{source} ({kind}): {e}", file=sys.stderr)
             continue
         for item in items:
-            level = classify(kind, item)
+            lvl = classify(kind, item)
             key = item["link"] or item["title"]
-            if not level or not key or key in seen:
+            if not lvl or not key or key in seen or norm(item["title"]) in titles:
                 continue
-            dt = when(item["date"])
-            if dt and dt < cutoff:
-                continue
-            if norm(item["title"]) in titles:
+            record = {**item, "source": source, "level": lvl, "seen": now}
+            if not fresh(record):
                 continue
             titles.add(norm(item["title"]))
-            record = {**item, "source": source, "level": level, "seen": now}
             seen[key] = record
             new.append(record)
     if not seed:
@@ -216,12 +261,13 @@ def main():
             for it in new:
                 f.write(f"- {now[:16].replace('T', ' ')} UTC | {it['source']} | {it['level']} | [{it['title']}]({it['link']})\n")
         for it in new:
-            # Only alert on fresh items; older finds still go on the page
-            if it["level"] == "name" and published(it) >= datetime.now(timezone.utc) - ALERT_AGE:
+            # Only alert on fresh PAH items; everything else goes on the page
+            if it["level"] == "pah" and published(it) >= now_dt - ALERT_AGE:
                 push(it)
     json.dump(state, open(state_path, "w"), indent=1)
     render(out, list(seen.values()))
-    print(f"{len(new)} new ({sum(1 for i in new if i['level'] == 'name')} name){' [seed]' if seed else ''}")
+    by = {k: sum(1 for i in new if i["level"] == k) for k, _ in LEVELS}
+    print(f"{len(new)} new ({by['pah']} PAH, {by['local']} local, {by['sector']} sector){' [seed]' if seed else ''}")
 
 
 if __name__ == "__main__":
