@@ -4,7 +4,7 @@ Checks public news and social feeds every 30 minutes at three levels: the hospic
 
 Set-up on GitHub:
 
-1. Repository settings, Secrets and variables, Actions: add `NTFY_TOPIC` (the ntfy channel name). `LOCAL_HOSPICES` (names separated by |) and `SECTOR_TERMS` (search words separated by |) turn on the other two levels. Optionally `EXTRA_FEEDS`: Google Alerts RSS links, separated by spaces.
+1. Repository settings, Secrets and variables, Actions: add `NTFY_TOPIC` (the ntfy channel name). `LOCAL_HOSPICES` (names separated by |; add @place,place after a name that other hospices share) and `SECTOR_TERMS` (search words separated by |) turn on the other two levels. Optionally `EXTRA_FEEDS`: Google Alerts RSS links, separated by spaces.
 2. Settings, Pages: deploy from the `main` branch, `/docs` folder.
 3. Actions tab: enable workflows, then run 'Media monitor' once by hand. The first run records what is already out there without sending alerts.
 

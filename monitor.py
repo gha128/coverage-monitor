@@ -17,7 +17,7 @@ Usage:
 first real run only reports new items. A run with no state.json seeds automatically.
 
 Environment (search terms are kept out of the repository as secrets):
-    LOCAL_HOSPICES  hospice names separated by |
+    LOCAL_HOSPICES  hospice names separated by |, each optionally name@place,place
     SECTOR_TERMS    search words separated by |, e.g. funding|closure|cuts
     NTFY_TOPIC      ntfy.sh topic to push to (optional; no push if unset)
     NTFY_SERVER     defaults to https://ntfy.sh
@@ -37,7 +37,13 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 
 NAME = '"Princess Alice Hospice"'
-LOCAL = [n.strip() for n in os.environ.get("LOCAL_HOSPICES", "").split("|") if n.strip()]
+# Each entry is a name, optionally with place words that must also appear: "St Catherine's Hospice@Crawley,Sussex"
+# (several hospices share a name, so the place words keep out the others)
+LOCAL = []
+for entry in os.environ.get("LOCAL_HOSPICES", "").split("|"):
+    name, _, places = entry.partition("@")
+    if name.strip():
+        LOCAL.append((name.strip(), [p.strip() for p in places.split(",") if p.strip()]))
 SECTOR = [t.strip() for t in os.environ.get("SECTOR_TERMS", "").split("|") if t.strip()]
 
 # How far back each level looks, and how fresh a PAH item must be to alert
@@ -50,8 +56,9 @@ def google(q, days):
         {"q": f"{q} when:{days}d", "hl": "en-GB", "gl": "GB", "ceid": "GB:en"})
 
 
-def quoted(names):
-    return "(" + " OR ".join(f'"{n}"' for n in names) + ")"
+def local_query(name, places):
+    q = f'"{name}"'
+    return q + " (" + " OR ".join(f'"{p}"' if " " in p else p for p in places) + ")" if places else q
 
 
 # (label, kind, url). 'pah', 'local' and 'sector' feeds are searches for that level;
@@ -67,15 +74,23 @@ FEEDS = [
     ("MyLondon", "outlet", "https://www.mylondon.news/news/?service=rss"),
     ("BBC Surrey", "outlet", "https://feeds.bbci.co.uk/news/england/surrey/rss.xml"),
 ]
-if LOCAL:
-    FEEDS.append(("Google News", "local", google(quoted(LOCAL), 14)))
+# One search per hospice: combining them in one query loses Google's date limit
+for name, places in LOCAL:
+    FEEDS.append(("Google News", "local", google(local_query(name, places), 14)))
 if SECTOR:
     FEEDS.append(("Google News", "sector", google("hospice (" + " OR ".join(SECTOR) + ")", 14)))
 for i, url in enumerate(os.environ.get("EXTRA_FEEDS", "").split()):
     FEEDS.append((f"Google Alert {i + 1}", "pah", url))
 
 PAH_RE = re.compile(r"princess alice|esher hospice", re.I)
-LOCAL_RE = re.compile("|".join(re.escape(n) for n in LOCAL), re.I) if LOCAL else None
+def name_re(n):
+    return re.compile(re.escape(n).replace("'", "['’]"), re.I)
+
+
+# The short form ('St Catherine', 'Shooting Star') for checking headlines
+LOCAL_SHORT = [name_re(re.sub(r"\s+(children's\s+)?hospices?$", "", n, flags=re.I)) for n, _ in LOCAL]
+LOCAL_RE = [(name_re(n),
+             re.compile("|".join(re.escape(p) for p in places), re.I) if places else None) for n, places in LOCAL]
 HOSPICE_RE = re.compile(r"\bhospices?\b", re.I)
 LEVELS = [("pah", "PAH"), ("local", "Local hospices"), ("sector", "Sector")]
 
@@ -131,10 +146,10 @@ def classify(kind, item):
     title = item["title"]
     if kind == "pah" or PAH_RE.search(blob):
         return "pah"
-    if LOCAL_RE and LOCAL_RE.search(blob):
+    # Google matches the name anywhere in the article, so the headline must be about a hospice
+    if kind == "local" and (HOSPICE_RE.search(title) or any(r.search(title) for r in LOCAL_SHORT)):
         return "local"
-    # Google's OR matching is loose, so search results must at least say 'hospice' in the title
-    if kind == "local" and HOSPICE_RE.search(title):
+    if any(n.search(blob) and (not p or p.search(blob)) for n, p in LOCAL_RE):
         return "local"
     if kind in ("sector", "outlet") and HOSPICE_RE.search(title if kind == "sector" else blob):
         return "sector"
