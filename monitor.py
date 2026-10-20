@@ -38,7 +38,7 @@ def search(base, **params):
 # (label, kind, url). kind 'search' feeds are already filtered by the query;
 # kind 'outlet' feeds are an outlet's full news feed and are matched locally.
 FEEDS = [
-    ("Google News", "search", search("https://news.google.com/rss/search", q=NAME + " when:7d", hl="en-GB", gl="GB", ceid="GB:en")),
+    ("Google News", "search", search("https://news.google.com/rss/search", q=NAME + " when:30d", hl="en-GB", gl="GB", ceid="GB:en")),
     ("Bing News", "search", search("https://www.bing.com/news/search", q=NAME, format="rss")),
     ("Reddit", "search", search("https://www.reddit.com/search.rss", q=NAME, sort="new")),
     ("Surrey Live", "outlet", "https://www.getsurrey.co.uk/news/?service=rss"),
@@ -52,7 +52,8 @@ for i, url in enumerate(os.environ.get("EXTRA_FEEDS", "").split()):
     FEEDS.append((f"Google Alert {i + 1}", "search", url))
 
 # Older items are ignored: the search feeds return years of archive by relevance
-MAX_AGE = timedelta(days=14)
+MAX_AGE = timedelta(days=30)
+ALERT_AGE = timedelta(days=2)
 
 NAME_RE = re.compile(r"princess alice|\bPAH\b.*hospice|esher hospice", re.I)
 CONTEXT_RE = re.compile(r"\bhospices?\b", re.I)
@@ -167,7 +168,7 @@ body{{background:var(--bg);color:var(--fg);font:15px/1.4 Arial,sans-serif;margin
 table{{border-collapse:collapse;width:100%}}td,th{{border-bottom:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}}
 a{{color:inherit}}tr.context td{{color:var(--ctx)}}p{{color:var(--muted)}}
 </style></head><body><h1>Media monitor</h1>
-<p>Checked {datetime.now(timezone.utc).strftime('%d %B %Y %H:%M')} UTC. Public news and social feeds. Last 14 days only. 'Context' rows mention hospices generally.</p>
+<p>Checked {datetime.now(timezone.utc).strftime('%d %B %Y %H:%M')} UTC. Public news and social feeds. Last 30 days only. 'Context' rows mention hospices generally.</p>
 <table><thead><tr><th>Published</th><th>Source</th><th>Item</th><th>Match</th></tr></thead><tbody>
 {''.join(rows)}</tbody></table></body></html>"""
     with open(os.path.join(out, "index.html"), "w", encoding="utf-8") as f:
@@ -186,7 +187,7 @@ def main():
     seen = state["items"]
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     cutoff = datetime.now(timezone.utc) - MAX_AGE
-    # Drop anything that has aged out, so the page and state only hold the last 14 days
+    # Drop anything that has aged out, so the page and state only hold the last 30 days
     seen = state["items"] = dedupe({k: v for k, v in seen.items() if published(v) >= cutoff})
     titles = {norm(v["title"]) for v in seen.values()}
     new = []
@@ -215,7 +216,8 @@ def main():
             for it in new:
                 f.write(f"- {now[:16].replace('T', ' ')} UTC | {it['source']} | {it['level']} | [{it['title']}]({it['link']})\n")
         for it in new:
-            if it["level"] == "name":
+            # Only alert on fresh items; older finds still go on the page
+            if it["level"] == "name" and published(it) >= datetime.now(timezone.utc) - ALERT_AGE:
                 push(it)
     json.dump(state, open(state_path, "w"), indent=1)
     render(out, list(seen.values()))
