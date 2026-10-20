@@ -131,6 +131,18 @@ def push(item):
         subprocess.run(["osascript", "-e", f'display notification "{title}" with title "PAH mention" subtitle "{item["source"]}"'], check=False)
 
 
+def norm(title):
+    # Cross-posts and syndicated copies share a title but not a link
+    return re.sub(r"[^a-z0-9]+", " ", title.lower()).strip()
+
+
+def dedupe(items):
+    keep = {}
+    for k, v in sorted(items.items(), key=lambda kv: published(kv[1])):
+        keep.setdefault(norm(v["title"]) or k, (k, v))
+    return dict(keep.values())
+
+
 def published(it):
     dt = when(it.get("date", ""))
     return dt or datetime.fromisoformat(it["seen"])
@@ -175,7 +187,8 @@ def main():
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     cutoff = datetime.now(timezone.utc) - MAX_AGE
     # Drop anything that has aged out, so the page and state only hold the last 14 days
-    seen = state["items"] = {k: v for k, v in seen.items() if published(v) >= cutoff}
+    seen = state["items"] = dedupe({k: v for k, v in seen.items() if published(v) >= cutoff})
+    titles = {norm(v["title"]) for v in seen.values()}
     new = []
     for source, kind, url in FEEDS:
         try:
@@ -191,6 +204,9 @@ def main():
             dt = when(item["date"])
             if dt and dt < cutoff:
                 continue
+            if norm(item["title"]) in titles:
+                continue
+            titles.add(norm(item["title"]))
             record = {**item, "source": source, "level": level, "seen": now}
             seen[key] = record
             new.append(record)
