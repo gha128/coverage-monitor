@@ -1,0 +1,35 @@
+name: Media monitor
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: monitor
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check feeds
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          EXTRA_FEEDS: ${{ secrets.EXTRA_FEEDS }}
+        run: python monitor.py docs
+      - name: Save results
+        run: |
+          git config user.name "media-monitor"
+          git config user.email "media-monitor@users.noreply.github.com"
+          git add docs
+          git diff --cached --quiet || git commit -m "Monitor run $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push
