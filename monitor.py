@@ -28,7 +28,7 @@ import sys
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 NAME = '"Princess Alice Hospice"'
 
@@ -38,7 +38,7 @@ def search(base, **params):
 # (label, kind, url). kind 'search' feeds are already filtered by the query;
 # kind 'outlet' feeds are an outlet's full news feed and are matched locally.
 FEEDS = [
-    ("Google News", "search", search("https://news.google.com/rss/search", q=NAME, hl="en-GB", gl="GB", ceid="GB:en")),
+    ("Google News", "search", search("https://news.google.com/rss/search", q=NAME + " when:7d", hl="en-GB", gl="GB", ceid="GB:en")),
     ("Bing News", "search", search("https://www.bing.com/news/search", q=NAME, format="rss")),
     ("Reddit", "search", search("https://www.reddit.com/search.rss", q=NAME, sort="new")),
     ("Surrey Live", "outlet", "https://www.getsurrey.co.uk/news/?service=rss"),
@@ -50,6 +50,9 @@ FEEDS = [
 ]
 for i, url in enumerate(os.environ.get("EXTRA_FEEDS", "").split()):
     FEEDS.append((f"Google Alert {i + 1}", "search", url))
+
+# Older items are ignored: the search feeds return years of archive by relevance
+MAX_AGE = timedelta(days=14)
 
 NAME_RE = re.compile(r"princess alice|\bPAH\b.*hospice|esher hospice", re.I)
 CONTEXT_RE = re.compile(r"\bhospices?\b", re.I)
@@ -128,11 +131,16 @@ def push(item):
         subprocess.run(["osascript", "-e", f'display notification "{title}" with title "PAH mention" subtitle "{item["source"]}"'], check=False)
 
 
+def published(it):
+    dt = when(it.get("date", ""))
+    return dt or datetime.fromisoformat(it["seen"])
+
+
 def render(out, items):
     rows = []
-    for it in sorted(items, key=lambda x: x["seen"], reverse=True)[:300]:
+    for it in sorted(items, key=published, reverse=True)[:300]:
         rows.append(
-            f'<tr class="{it["level"]}"><td>{html.escape(it["seen"][:16].replace("T", " "))}</td>'
+            f'<tr class="{it["level"]}"><td>{published(it).strftime("%d %b %Y %H:%M")}</td>'
             f'<td>{html.escape(it["source"])}</td>'
             f'<td><a href="{html.escape(it["link"])}" rel="noopener">{html.escape(it["title"])}</a></td>'
             f'<td>{"Name" if it["level"] == "name" else "Context"}</td></tr>'
@@ -147,8 +155,8 @@ body{{background:var(--bg);color:var(--fg);font:15px/1.4 Arial,sans-serif;margin
 table{{border-collapse:collapse;width:100%}}td,th{{border-bottom:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}}
 a{{color:inherit}}tr.context td{{color:var(--ctx)}}p{{color:var(--muted)}}
 </style></head><body><h1>Media monitor</h1>
-<p>Checked {datetime.now(timezone.utc).strftime('%d %B %Y %H:%M')} UTC. Public news and social feeds. 'Context' rows mention hospices generally.</p>
-<table><thead><tr><th>Found</th><th>Source</th><th>Item</th><th>Match</th></tr></thead><tbody>
+<p>Checked {datetime.now(timezone.utc).strftime('%d %B %Y %H:%M')} UTC. Public news and social feeds. Last 14 days only. 'Context' rows mention hospices generally.</p>
+<table><thead><tr><th>Published</th><th>Source</th><th>Item</th><th>Match</th></tr></thead><tbody>
 {''.join(rows)}</tbody></table></body></html>"""
     with open(os.path.join(out, "index.html"), "w", encoding="utf-8") as f:
         f.write(page)
@@ -165,6 +173,9 @@ def main():
     state = json.load(open(state_path)) if os.path.exists(state_path) else {"items": {}}
     seen = state["items"]
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    cutoff = datetime.now(timezone.utc) - MAX_AGE
+    # Drop anything that has aged out, so the page and state only hold the last 14 days
+    seen = state["items"] = {k: v for k, v in seen.items() if published(v) >= cutoff}
     new = []
     for source, kind, url in FEEDS:
         try:
@@ -176,6 +187,9 @@ def main():
             level = classify(kind, item)
             key = item["link"] or item["title"]
             if not level or not key or key in seen:
+                continue
+            dt = when(item["date"])
+            if dt and dt < cutoff:
                 continue
             record = {**item, "source": source, "level": level, "seen": now}
             seen[key] = record
