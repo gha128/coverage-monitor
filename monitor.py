@@ -92,6 +92,17 @@ LOCAL_SHORT = [name_re(re.sub(r"\s+(children's\s+)?hospices?$", "", n, flags=re.
 LOCAL_RE = [(name_re(n),
              re.compile("|".join(re.escape(p) for p in places), re.I) if places else None) for n, places in LOCAL]
 HOSPICE_RE = re.compile(r"\bhospices?\b", re.I)
+# Google's UK edition still carries American hospice news. Washington and Georgia are left out
+# (a Tyne and Wear town, a country) and York only counts as New York
+US_STATES = ("Alabama Alaska Arizona Arkansas California Colorado Connecticut Delaware Florida Hawaii Idaho "
+             "Illinois Indiana Iowa Kansas Kentucky Louisiana Maine Maryland Massachusetts Michigan Minnesota "
+             "Mississippi Missouri Montana Nebraska Nevada Ohio Oklahoma Oregon Pennsylvania Tennessee Texas "
+             "Utah Vermont Virginia Wisconsin Wyoming").split()
+US_RE = re.compile(r"\b(" + "|".join(US_STATES) + r"|New York|New Jersey|New Mexico|New Hampshire|"
+                   r"North Carolina|South Carolina|North Dakota|South Dakota|Rhode Island|West Virginia|"
+                   r"Medicare|Medicaid|U\.S\.|USA|federal|Province|provincial|Canada|Canadian|Australia|"
+                   r"New Zealand|NZ|India|(?<!Northern )Ireland)\b|[$€]")
+FOREIGN_TLD = re.compile(r"\.(ca|nz|au|ie|in|us|za)(/|$)")
 LEVELS = [("pah", "PAH"), ("local", "Local hospices"), ("sector", "Sector")]
 
 ATOM = "{http://www.w3.org/2005/Atom}"
@@ -119,6 +130,8 @@ def parse(body):
             "link": text(it, "link"),
             "summary": re.sub(r"<[^>]+>", " ", text(it, "description")),
             "date": text(it, "pubDate"),
+            "outlet": text(it, "source"),
+            "outlet_url": (it.find("source").get("url", "") if it.find("source") is not None else ""),
         }
     for it in root.iter(ATOM + "entry"):
         link = it.find(ATOM + "link")
@@ -152,12 +165,16 @@ def classify(kind, item):
     if any(n.search(blob) and (not p or p.search(blob)) for n, p in LOCAL_RE):
         return "local"
     if kind in ("sector", "outlet") and HOSPICE_RE.search(title if kind == "sector" else blob):
+        if US_RE.search(f"{blob} {item.get('outlet', '')}") or FOREIGN_TLD.search(item.get("outlet_url", "")):
+            return None
         return "sector"
     return None
 
 
 def norm(title):
-    # Cross-posts and syndicated copies share a title but not a link
+    # Cross-posts and syndicated copies share a title but not a link. Google News adds
+    # ' - Outlet' to each headline, so the same story from two papers differs only there
+    title = re.sub(r"\s+-\s+[^-]{2,60}$", "", title)
     return re.sub(r"[^a-z0-9]+", " ", title.lower()).strip()
 
 
@@ -251,7 +268,8 @@ def main():
     now = now_dt.isoformat(timespec="seconds")
     fresh = lambda it: published(it) >= now_dt - MAX_AGE[level(it)]
     # Drop anything that has aged out, so the page and state only hold the look-back window
-    seen = state["items"] = dedupe({k: v for k, v in state["items"].items() if fresh(v)})
+    keep = lambda v: fresh(v) and not (level(v) == "sector" and US_RE.search(f"{v['title']} {v['summary']} {v.get('outlet', '')}"))
+    seen = state["items"] = dedupe({k: v for k, v in state["items"].items() if keep(v)})
     titles = {norm(v["title"]) for v in seen.values()}
     new = []
     for source, kind, url in FEEDS:
