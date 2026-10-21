@@ -228,16 +228,28 @@ def push(item):
         subprocess.run(["osascript", "-e", f'display notification "{title}" with title "PAH mention" subtitle "{item["source"]}"'], check=False)
 
 
+SUFFIX_RE = re.compile(r"\s+-\s+([^-]{2,60})$")
+
+
+def outlet_and_title(it):
+    # Google News appends ' - Outlet' to headlines; show the outlet as the source instead
+    m = SUFFIX_RE.search(it["title"])
+    if it["source"] in ("Google News", "Civil Society") and m:
+        return it.get("outlet") or m.group(1), it["title"][:m.start()]
+    return it["source"], it["title"]
+
+
 def render(out, items):
     counts = {k: sum(1 for i in items if level(i) == k) for k, _ in LEVELS}
     buttons = "".join(
         f'<button data-level="{k}">{label} <span>{counts[k]}</span></button>' for k, label in LEVELS)
     rows = []
     for it in sorted(items, key=published, reverse=True)[:500]:
+        source, title = outlet_and_title(it)
         rows.append(
             f'<tr data-level="{level(it)}"><td>{published(it).strftime("%d %b %Y %H:%M")}</td>'
-            f'<td>{html.escape(it["source"])}</td>'
-            f'<td><a href="{html.escape(it["link"])}" rel="noopener">{html.escape(it["title"])}</a></td></tr>'
+            f'<td>{html.escape(source)}</td>'
+            f'<td><a href="{html.escape(it["link"])}" rel="noopener">{html.escape(title)}</a></td></tr>'
         )
     page = f"""<!doctype html><html lang="en-GB"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
@@ -247,7 +259,7 @@ def render(out, items):
 @media (prefers-color-scheme:dark){{:root{{--bg:#111;--fg:#eee;--muted:#aaa;--line:#333;--btn:#222;--on:#eee;--onfg:#111}}}}
 body{{background:var(--bg);color:var(--fg);font:15px/1.4 Arial,sans-serif;margin:0 auto;max-width:1000px;padding:16px}}
 table{{border-collapse:collapse;width:100%}}td,th{{border-bottom:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}}
-td:first-child{{white-space:nowrap}}a{{color:inherit}}p{{color:var(--muted)}}
+td:first-child{{white-space:nowrap}}td:nth-child(2){{white-space:nowrap;max-width:14em;overflow:hidden;text-overflow:ellipsis}}a{{color:inherit}}p{{color:var(--muted)}}
 nav{{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}}
 button{{background:var(--btn);border:1px solid var(--line);border-radius:6px;color:var(--fg);cursor:pointer;font:inherit;padding:6px 12px}}
 button[aria-pressed=true]{{background:var(--on);color:var(--onfg)}}button span{{opacity:.7}}
