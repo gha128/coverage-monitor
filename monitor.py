@@ -5,7 +5,6 @@ Three levels:
   pah     mentions of Princess Alice Hospice. The only level that sends alerts.
   local   named neighbouring hospices (LOCAL_HOSPICES)
   sector  UK hospice funding, policy and service news (SECTOR_TERMS)
-  charity wider charity sector news from Civil Society and Third Sector
 
 Each run fetches the feeds, keeps items that match, and for anything not seen
 before: appends it to log.md, rebuilds index.html, and sends a push notification
@@ -48,8 +47,7 @@ for entry in os.environ.get("LOCAL_HOSPICES", "").split("|"):
 SECTOR = [t.strip() for t in os.environ.get("SECTOR_TERMS", "").split("|") if t.strip()]
 
 # How far back each level looks, and how fresh a PAH item must be to alert
-MAX_AGE = {"pah": timedelta(days=30), "local": timedelta(days=14), "sector": timedelta(days=14),
-           "charity": timedelta(days=14)}
+MAX_AGE = {"pah": timedelta(days=30), "local": timedelta(days=14), "sector": timedelta(days=14)}
 ALERT_AGE = timedelta(days=2)
 
 
@@ -75,9 +73,10 @@ FEEDS = [
     ("Epsom Guardian", "outlet", "https://www.epsomguardian.co.uk/news/rss/"),
     ("MyLondon", "outlet", "https://www.mylondon.news/news/?service=rss"),
     ("BBC Surrey", "outlet", "https://feeds.bbci.co.uk/news/england/surrey/rss.xml"),
-    # Civil Society has no RSS feed, so its articles come through a Google News site search
-    ("Civil Society", "charity", google("site:civilsociety.co.uk", 14)),
-    ("Third Sector", "charity", "https://www.thirdsector.co.uk/rss/news"),
+    # Charity trade press, for its hospice stories only. Civil Society has no RSS feed,
+    # so it comes through a Google News search of its site
+    ("Civil Society", "trade", google('site:civilsociety.co.uk (hospice OR hospices OR palliative OR "end of life")', 30)),
+    ("Third Sector", "outlet", "https://www.thirdsector.co.uk/rss/news"),
 ]
 # One search per hospice: combining them in one query loses Google's date limit
 for name, places in LOCAL:
@@ -108,13 +107,12 @@ US_RE = re.compile(r"\b(" + "|".join(US_STATES) + r"|New York|New Jersey|New Mex
                    r"Medicare|Medicaid|U\.S\.|USA|federal|Province|provincial|Canada|Canadian|Australia|"
                    r"New Zealand|NZ|India|(?<!Northern )Ireland)\b|[$€]")
 FOREIGN_TLD = re.compile(r"\.(ca|nz|au|ie|in|us|za)(/|$)")
-LEVELS = [("pah", "PAH"), ("local", "Local hospices"), ("sector", "Hospice sector"), ("charity", "Charity sector")]
+LEVELS = [("pah", "PAH"), ("local", "Local hospices"), ("sector", "Hospice sector")]
 # One line under the buttons saying what the chosen view holds
 NOTES = {
     "pah": "Mentions of Princess Alice Hospice. New ones send a phone alert.",
     "local": "Neighbouring hospices: St Catherine's (Crawley), Phyllis Tuckwell, Woking and Sam Beare, Shooting Star, St Raphael's, Royal Trinity.",
-    "sector": "UK hospice news: funding, closures, beds, service changes.",
-    "charity": "Wider charity news from Civil Society and Third Sector: the regulator, governance, fundraising, closures.",
+    "sector": "UK hospice news: funding, closures, beds, service changes, including Civil Society and Third Sector.",
     "all": "Everything above, newest first.",
 }
 
@@ -177,11 +175,10 @@ def classify(kind, item):
         return "local"
     if any(n.search(blob) and (not p or p.search(blob)) for n, p in LOCAL_RE):
         return "local"
-    if kind == "charity":
-        # Skip the site's own pages ('Event booking', 'Finance'): real headlines run to several words
-        if len(re.sub(r"\s+-\s+[^-]{2,60}$", "", title).split()) < 4:
-            return None
-        return "sector" if HOSPICE_RE.search(title) else "charity"
+    if kind == "trade":
+        # The site search already asks for hospice stories; skip the site's own pages
+        # ('Event booking', 'Finance'), whose titles are a word or two
+        return "sector" if len(re.sub(r"\s+-\s+[^-]{2,60}$", "", title).split()) >= 4 else None
     if kind in ("sector", "outlet") and HOSPICE_RE.search(title if kind == "sector" else blob):
         if US_RE.search(f"{blob} {item.get('outlet', '')}") or FOREIGN_TLD.search(item.get("outlet_url", "")):
             return None
@@ -256,7 +253,7 @@ button{{background:var(--btn);border:1px solid var(--line);border-radius:6px;col
 button[aria-pressed=true]{{background:var(--on);color:var(--onfg)}}button span{{opacity:.7}}
 @media (max-width:600px){{td:nth-child(2),th:nth-child(2){{display:none}}}}
 </style></head><body><h1>Media monitor</h1>
-<p>Checked {datetime.now(timezone.utc).strftime('%d %B %Y %H:%M')} UTC. Public news and social feeds. PAH: last 30 days. Everything else: last 14 days.</p>
+<p>Checked {datetime.now(timezone.utc).strftime('%d %B %Y %H:%M')} UTC. Public news and social feeds. PAH: last 30 days. Local hospices and hospice sector: last 14 days.</p>
 <nav>{buttons}<button data-level="all">All</button></nav>
 <p id="note"></p>
 <table><thead><tr><th>Published</th><th>Source</th><th>Item</th></tr></thead><tbody>
@@ -319,7 +316,7 @@ def main():
     json.dump(state, open(state_path, "w"), indent=1)
     render(out, list(seen.values()))
     by = {k: sum(1 for i in new if i["level"] == k) for k, _ in LEVELS}
-    print(f"{len(new)} new ({by['pah']} PAH, {by['local']} local, {by['sector']} sector, {by['charity']} charity){' [seed]' if seed else ''}")
+    print(f"{len(new)} new ({by['pah']} PAH, {by['local']} local, {by['sector']} sector){' [seed]' if seed else ''}")
 
 
 if __name__ == "__main__":
