@@ -108,7 +108,15 @@ US_RE = re.compile(r"\b(" + "|".join(US_STATES) + r"|New York|New Jersey|New Mex
                    r"Medicare|Medicaid|U\.S\.|USA|federal|Province|provincial|Canada|Canadian|Australia|"
                    r"New Zealand|NZ|India|(?<!Northern )Ireland)\b|[$€]")
 FOREIGN_TLD = re.compile(r"\.(ca|nz|au|ie|in|us|za)(/|$)")
-LEVELS = [("pah", "PAH"), ("local", "Local hospices"), ("sector", "Sector"), ("charity", "Charities")]
+LEVELS = [("pah", "PAH"), ("local", "Local hospices"), ("sector", "Hospice sector"), ("charity", "Charity sector")]
+# One line under the buttons saying what the chosen view holds
+NOTES = {
+    "pah": "Mentions of Princess Alice Hospice. New ones send a phone alert.",
+    "local": "Neighbouring hospices: St Catherine's (Crawley), Phyllis Tuckwell, Woking and Sam Beare, Shooting Star, St Raphael's, Royal Trinity.",
+    "sector": "UK hospice news: funding, closures, beds, service changes.",
+    "charity": "Wider charity news from Civil Society and Third Sector: the regulator, governance, fundraising, closures.",
+    "all": "Everything above, newest first.",
+}
 
 ATOM = "{http://www.w3.org/2005/Atom}"
 UA = {"User-Agent": "Mozilla/5.0 (Macintosh) media-monitor"}
@@ -250,13 +258,14 @@ button[aria-pressed=true]{{background:var(--on);color:var(--onfg)}}button span{{
 </style></head><body><h1>Media monitor</h1>
 <p>Checked {datetime.now(timezone.utc).strftime('%d %B %Y %H:%M')} UTC. Public news and social feeds. PAH: last 30 days. Everything else: last 14 days.</p>
 <nav>{buttons}<button data-level="all">All</button></nav>
+<p id="note"></p>
 <table><thead><tr><th>Published</th><th>Source</th><th>Item</th></tr></thead><tbody>
 {''.join(rows)}</tbody></table>
 <p id="empty" hidden>Nothing in this view.</p>
 <script>
-const btns=[...document.querySelectorAll('nav button')],rows=[...document.querySelectorAll('tbody tr')];
+const btns=[...document.querySelectorAll('nav button')],rows=[...document.querySelectorAll('tbody tr')],notes={json.dumps(NOTES)};
 function show(l){{let n=0;rows.forEach(r=>{{const on=l==='all'||r.dataset.level===l;r.hidden=!on;n+=on}});
-btns.forEach(b=>b.setAttribute('aria-pressed',b.dataset.level===l));document.getElementById('empty').hidden=n>0;
+btns.forEach(b=>b.setAttribute('aria-pressed',b.dataset.level===l));document.getElementById('note').textContent=notes[l]||'';document.getElementById('empty').hidden=n>0;
 try{{localStorage.setItem('level',l)}}catch(e){{}}}}
 btns.forEach(b=>b.onclick=()=>show(b.dataset.level));
 let start='pah';try{{start=localStorage.getItem('level')||'pah'}}catch(e){{}}show(start);
