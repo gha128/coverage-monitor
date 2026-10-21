@@ -210,6 +210,38 @@ def dedupe(items):
     return dict(keep.values())
 
 
+GOOGLE_HEADERS = {**UA, "Cookie": "CONSENT=YES+cb; SOCS=CAESEwgDEgk0ODE3Nzk3MjQaAmVuIAEaBgiA_LyaBg"}
+
+
+def resolve(link):
+    """Turn a Google News link into the article's own address.
+
+    Google's links pass through a consent page for UK visitors, which can stall,
+    so the page links to the article directly. Returns None if Google won't say.
+    """
+    m = re.search(r"news\.google\.com/rss/articles/([^?]+)", link)
+    if not m:
+        return None
+    art = m.group(1)
+    try:
+        page = urllib.request.urlopen(urllib.request.Request(
+            f"https://news.google.com/rss/articles/{art}", headers=GOOGLE_HEADERS), timeout=20).read().decode()
+        sg = re.search(r'data-n-a-sg="([^"]+)"', page).group(1)
+        ts = re.search(r'data-n-a-ts="([^"]+)"', page).group(1)
+        inner = ["garturlreq", [["X", "X", ["X", "X"], None, None, 1, 1, "US:en", None, 1, None, None, None, None, None, 0, 1],
+                                "X", "X", 1, [1, 1, 1], 1, 1, None, 0, 0, None, 0], art, int(ts), sg]
+        body = "f.req=" + urllib.parse.quote(json.dumps([[["Fbv4je", json.dumps(inner), None, "generic"]]]))
+        reply = urllib.request.urlopen(urllib.request.Request(
+            "https://news.google.com/_/DotsSplashUi/data/batchexecute", data=body.encode(),
+            headers={**GOOGLE_HEADERS, "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"}),
+            timeout=20).read().decode()
+        url = json.loads(json.loads(reply.split("\n\n")[1])[0][2])[1]
+        return url if url.startswith("http") else None
+    except Exception as e:
+        print(f"resolve failed: {e}", file=sys.stderr)
+        return None
+
+
 def push(item):
     topic = os.environ.get("NTFY_TOPIC")
     if topic:
@@ -217,7 +249,7 @@ def push(item):
         req = urllib.request.Request(
             f"{server}/{topic}",
             data=item["title"].encode("utf-8"),
-            headers={"Title": f"PAH mention: {item['source']}", "Click": item["link"], "Tags": "newspaper"},
+            headers={"Title": f"PAH mention: {item['source']}", "Click": item.get("url") or item["link"], "Tags": "newspaper"},
         )
         try:
             urllib.request.urlopen(req, timeout=20)
@@ -249,7 +281,7 @@ def render(out, items):
         rows.append(
             f'<tr data-level="{level(it)}"><td>{published(it).strftime("%d %b %Y %H:%M")}</td>'
             f'<td>{html.escape(source)}</td>'
-            f'<td><a href="{html.escape(it["link"])}" rel="noopener">{html.escape(title)}</a></td></tr>'
+            f'<td><a href="{html.escape(it.get("url") or it["link"])}" rel="noopener">{html.escape(title)}</a></td></tr>'
         )
     page = f"""<!doctype html><html lang="en-GB"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
@@ -317,10 +349,13 @@ def main():
             titles.add(norm(item["title"]))
             seen[key] = record
             new.append(record)
+    # Look up direct links for anything that doesn't have one yet (a few seconds each, so capped)
+    for it in [v for v in seen.values() if "url" not in v and "news.google.com" in v["link"]][:60]:
+        it["url"] = resolve(it["link"]) or it["link"]
     if not seed:
         with open(os.path.join(out, "log.md"), "a", encoding="utf-8") as f:
             for it in new:
-                f.write(f"- {now[:16].replace('T', ' ')} UTC | {it['source']} | {it['level']} | [{it['title']}]({it['link']})\n")
+                f.write(f"- {now[:16].replace('T', ' ')} UTC | {it['source']} | {it['level']} | [{it['title']}]({it.get('url') or it['link']})\n")
         for it in new:
             # Only alert on fresh PAH items; everything else goes on the page
             if it["level"] == "pah" and published(it) >= now_dt - ALERT_AGE:
