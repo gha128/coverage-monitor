@@ -106,13 +106,19 @@ US_RE = re.compile(r"\b(" + "|".join(US_STATES) + r"|New York|New Jersey|New Mex
                    r"North Carolina|South Carolina|North Dakota|South Dakota|Rhode Island|West Virginia|"
                    r"Medicare|Medicaid|U\.S\.|USA|federal|Province|provincial|Canada|Canadian|Australia|"
                    r"New Zealand|NZ|India|(?<!Northern )Ireland)\b|[$€]")
+# Items that get past the filters but shouldn't be there; add to these as they turn up
+BLOCKED_SITES = re.compile(r"wjfw\.com", re.I)
+BLOCKED_WORDS = re.compile(r"\bAspirus\b", re.I)
 FOREIGN_TLD = re.compile(r"\.(ca|nz|au|ie|in|us|za)(/|$)")
 LEVELS = [("pah", "PAH"), ("local", "Local hospices"), ("sector", "Hospice sector")]
 # One line under the buttons saying what the chosen view holds
 NOTES = {
-    "pah": "Mentions of Princess Alice Hospice. New ones send a phone alert.",
-    "local": "Neighbouring hospices: St Catherine's (Crawley), Phyllis Tuckwell, Woking and Sam Beare, Shooting Star, St Raphael's, Royal Trinity.",
-    "sector": "UK hospice news: funding, closures, beds, service changes, including Civil Society and Third Sector.",
+    "pah": "Mentions of Princess Alice Hospice. New ones send a phone alert. Sources: Google News, Bing News, Reddit, "
+           "Surrey Live, Surrey Comet, Richmond & Twickenham Times, Epsom Guardian, MyLondon, BBC Surrey.",
+    "local": "Neighbouring hospices: St Catherine's (Crawley), Phyllis Tuckwell, Woking and Sam Beare, Shooting Star, "
+             "St Raphael's, Royal Trinity. Sources: Google News, plus the local papers above.",
+    "sector": "UK hospice news: funding, closures, beds, service changes. Sources: Google News (BBC, ITV, eHospice and "
+              "regional papers), Civil Society, Third Sector, plus the local papers above.",
     "all": "Everything above, newest first.",
 }
 
@@ -165,7 +171,14 @@ def when(raw):
     return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
 
+def blocked(item):
+    where = f"{item.get('outlet_url', '')} {item.get('url', '')} {item['link']} {item.get('outlet', '')}"
+    return bool(BLOCKED_SITES.search(where) or BLOCKED_WORDS.search(item["title"]))
+
+
 def classify(kind, item):
+    if blocked(item):
+        return None
     blob = f"{item['title']} {item['summary']}"
     title = item["title"]
     if kind == "pah" or PAH_RE.search(blob):
@@ -328,7 +341,7 @@ def main():
     now = now_dt.isoformat(timespec="seconds")
     fresh = lambda it: published(it) >= now_dt - MAX_AGE[level(it)]
     # Drop anything that has aged out, so the page and state only hold the look-back window
-    keep = lambda v: fresh(v) and not (level(v) == "sector" and US_RE.search(f"{v['title']} {v['summary']} {v.get('outlet', '')}"))
+    keep = lambda v: fresh(v) and not blocked(v) and not (level(v) == "sector" and US_RE.search(f"{v['title']} {v['summary']} {v.get('outlet', '')}"))
     seen = state["items"] = dedupe({k: v for k, v in state["items"].items() if keep(v)})
     titles = {norm(v["title"]) for v in seen.values()}
     new = []
