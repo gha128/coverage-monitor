@@ -1,6 +1,6 @@
 # Media monitor
 
-Checks public news and social feeds every 30 minutes at four levels: the hospice itself, named neighbouring hospices, UK hospice sector news, and wider charity news from Civil Society. New mentions of the hospice send a phone alert through ntfy; everything goes on a page with a filter for each level, in `docs/index.html`.
+Checks public news and social feeds every 30 minutes at four levels: the hospice itself, named neighbouring hospices, UK hospice sector news, and wider charity news from Civil Society and Third Sector. New mentions of the hospice send a phone alert through ntfy; everything goes on a page with a filter for each level, in `docs/index.html`.
 
 Set-up on GitHub:
 

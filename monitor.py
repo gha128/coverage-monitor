@@ -5,7 +5,7 @@ Three levels:
   pah     mentions of Princess Alice Hospice. The only level that sends alerts.
   local   named neighbouring hospices (LOCAL_HOSPICES)
   sector  UK hospice funding, policy and service news (SECTOR_TERMS)
-  charity wider charity sector news from Civil Society
+  charity wider charity sector news from Civil Society and Third Sector
 
 Each run fetches the feeds, keeps items that match, and for anything not seen
 before: appends it to log.md, rebuilds index.html, and sends a push notification
@@ -77,6 +77,7 @@ FEEDS = [
     ("BBC Surrey", "outlet", "https://feeds.bbci.co.uk/news/england/surrey/rss.xml"),
     # Civil Society has no RSS feed, so its articles come through a Google News site search
     ("Civil Society", "charity", google("site:civilsociety.co.uk", 14)),
+    ("Third Sector", "charity", "https://www.thirdsector.co.uk/rss/news"),
 ]
 # One search per hospice: combining them in one query loses Google's date limit
 for name, places in LOCAL:
