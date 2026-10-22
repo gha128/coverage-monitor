@@ -192,3 +192,5 @@
 - 2026-10-22 05:12 UTC | Civil Society | sector | [What’s in October’s issue of Fundraising Magazine? - Civil Society Media](https://www.civilsociety.co.uk/fundraising/what-s-in-october-2026-s-issue-of-fundraising-magazine.html)
 - 2026-10-22 05:12 UTC | Third Sector | sector | [Hospice consults on restructure amid £1.8m deficit](https://www.thirdsector.co.uk/hospice-consults-restructure-amid-18m-deficit/management/article/1973124)
 - 2026-10-22 05:12 UTC | Google News | local | [Chandler's Ford nurse completes Himalayan trek to support children's hospice - Yahoo News UK](https://uk.news.yahoo.com/chandlers-ford-nurse-completes-himalayan-023000801.html)
+- 2026-10-22 15:30 UTC | Google News | sector | [Hospice charity consults staff on restructure plans amid £1.8m deficit - Charity Times](https://www.charitytimes.com/ct/Hospice-charity-facing-debt-consults-staff-on-restructure-plans.php)
+- 2026-10-22 15:30 UTC | Google News | sector | [£60,000 grant helps Haven House hospice continue care for children and families - Ilford Recorder](https://www.ilfordrecorder.co.uk/news/26652772.60-000-grant-supports-haven-house-childrens-hospice/)
