@@ -219,3 +219,6 @@
 - 2026-10-28 17:00 UTC | Google News | sector | [New chapter for Clydebank hospice as specialist care centre opens - Clydebank Post](https://www.clydebankpost.co.uk/news/26671008.new-specialist-care-centre-opens-clydebank-hospice/)
 - 2026-10-28 17:00 UTC | Google News | sector | [Free will-writing offered in Hertfordshire to support Isabel Hospice fundraiser - Welwyn Hatfield Times](https://www.whtimes.co.uk/news/26671797.free-will-writing-offered-hertfordshire-hospice/)
 - 2026-10-28 17:00 UTC | Google News | sector | [New Hospice Locations Crop Up as Facility Relaunches - Hospice News](https://hospicenews.com/2026/10/20/new-hospice-locations-crop-up-as-facility-relaunches/)
+- 2026-10-28 21:49 UTC | Google News | pah | [New Takusan Restaurant Brings a Taste of Japan to Caterham - Surrey Comet](https://www.surreycomet.co.uk/young-reporter/36870/)
+- 2026-10-28 21:49 UTC | Google News | pah | [Corfe Castle: The Real Ruin Behind ‘The Famous Five’ - Surrey Comet](https://www.surreycomet.co.uk/young-reporter/36892/)
+- 2026-10-28 21:49 UTC | Google News | local | [Can you give a gift or two to support local hospice care? - InYourArea](https://www.inyourarea.co.uk/news/can-you-give-a-gift-or-two-to-support-local-hospice-care)
