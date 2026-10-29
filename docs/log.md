@@ -222,3 +222,4 @@
 - 2026-10-28 21:49 UTC | Google News | pah | [New Takusan Restaurant Brings a Taste of Japan to Caterham - Surrey Comet](https://www.surreycomet.co.uk/young-reporter/36870/)
 - 2026-10-28 21:49 UTC | Google News | pah | [Corfe Castle: The Real Ruin Behind ‘The Famous Five’ - Surrey Comet](https://www.surreycomet.co.uk/young-reporter/36892/)
 - 2026-10-28 21:49 UTC | Google News | local | [Can you give a gift or two to support local hospice care? - InYourArea](https://www.inyourarea.co.uk/news/can-you-give-a-gift-or-two-to-support-local-hospice-care)
+- 2026-10-29 01:35 UTC | Google News | pah | [YMCA's new housing in Salfords nears completion - Surrey Comet](https://www.surreycomet.co.uk/young-reporter/36988/)
