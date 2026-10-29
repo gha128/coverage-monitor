@@ -225,3 +225,6 @@
 - 2026-10-29 01:35 UTC | Google News | pah | [YMCA's new housing in Salfords nears completion - Surrey Comet](https://www.surreycomet.co.uk/young-reporter/36988/)
 - 2026-10-29 08:53 UTC | Google News | sector | [First national conference for non-bedded hospices - eHospice](https://ehospice.com/uk_posts/first-national-conference-for-non-bedded-hospices/)
 - 2026-10-29 08:53 UTC | Google News | sector | [Meet the volunteers who bring flowers from weddings and funerals to hospice patients - WCAX](https://www.wcax.com/video/2026/10/21/meet-volunteers-who-bring-flowers-weddings-funerals-hospice-patien/?outputType=amp)
+- 2026-10-29 15:25 UTC | Google News | sector | [Scotland’s hospices receive funding to match NHS pay rates - Nursing Times](https://www.nursingtimes.net/end-of-life-and-palliative-care/scotlands-hospices-receive-funding-to-match-nhs-pay-rates-29-10-2026/)
+- 2026-10-29 15:25 UTC | Google News | sector | [Local children’s hospice awarded £60k grant - Waltham Forest Echo](https://walthamforestecho.co.uk/2026/10/16/local-childrens-hospice-awarded-60k-grant/)
+- 2026-10-29 15:25 UTC | Google News | sector | [Wolverhampton hospice receives £10,000 boost from Staffordshire Freemasons - Express and Star](https://www.expressandstar.com/your-world/wolverhampton-hospice-receives-ps10000-boost-from-staffordshire-freemasons-9317493)
