@@ -255,6 +255,23 @@ def resolve(link):
         return None
 
 
+def on_page(url):
+    """Whether the name is in the article's readable text.
+
+    Search engines also match words hidden in the page code, such as the description
+    of a sidebar photo, which pulled unrelated Surrey Comet pages into PAH. Structured
+    data (ld+json) counts, since paywalled sites put the full article there. Keeps the
+    item if the page can't be fetched.
+    """
+    try:
+        page = fetch(url).decode("utf-8", "ignore")
+    except Exception as e:
+        print(f"page check failed, keeping {url}: {e}", file=sys.stderr)
+        return True
+    page = re.sub(r"(?is)<script\b(?![^>]*ld\+json)[^>]*>.*?</script>|<(style|noscript)\b.*?</\1>", " ", page)
+    return bool(PAH_RE.search(html.unescape(re.sub(r"<[^>]+>", " ", page))))
+
+
 def push(item):
     topic = os.environ.get("NTFY_TOPIC")
     if topic:
@@ -344,6 +361,9 @@ def main():
     keep = lambda v: fresh(v) and not blocked(v) and not (level(v) == "sector" and US_RE.search(f"{v['title']} {v['summary']} {v.get('outlet', '')}"))
     seen = state["items"] = dedupe({k: v for k, v in state["items"].items() if keep(v)})
     titles = {norm(v["title"]) for v in seen.values()}
+    # PAH search hits whose page doesn't mention PAH, remembered so they aren't fetched every run
+    rejected = state["rejected"] = {k: t for k, t in state.get("rejected", {}).items()
+                                    if datetime.fromisoformat(t) >= now_dt - MAX_AGE["pah"] - timedelta(days=1)}
     new = []
     for source, kind, url in FEEDS:
         try:
@@ -357,8 +377,16 @@ def main():
             if not lvl or not key or key in seen or norm(item["title"]) in titles:
                 continue
             record = {**item, "source": source, "level": lvl, "seen": now}
-            if not fresh(record):
+            if not fresh(record) or key in rejected:
                 continue
+            # A search hit with the name nowhere in the headline or summary: check the page itself
+            if kind == "pah" and not PAH_RE.search(f"{item['title']} {item['summary']}"):
+                page_url = item["link"]
+                if "news.google.com" in page_url:
+                    page_url = record["url"] = resolve(page_url) or page_url
+                if not on_page(page_url):
+                    rejected[key] = now
+                    continue
             titles.add(norm(item["title"]))
             seen[key] = record
             new.append(record)
