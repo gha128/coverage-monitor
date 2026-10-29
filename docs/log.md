@@ -223,3 +223,5 @@
 - 2026-10-28 21:49 UTC | Google News | pah | [Corfe Castle: The Real Ruin Behind ‘The Famous Five’ - Surrey Comet](https://www.surreycomet.co.uk/young-reporter/36892/)
 - 2026-10-28 21:49 UTC | Google News | local | [Can you give a gift or two to support local hospice care? - InYourArea](https://www.inyourarea.co.uk/news/can-you-give-a-gift-or-two-to-support-local-hospice-care)
 - 2026-10-29 01:35 UTC | Google News | pah | [YMCA's new housing in Salfords nears completion - Surrey Comet](https://www.surreycomet.co.uk/young-reporter/36988/)
+- 2026-10-29 08:53 UTC | Google News | sector | [First national conference for non-bedded hospices - eHospice](https://ehospice.com/uk_posts/first-national-conference-for-non-bedded-hospices/)
+- 2026-10-29 08:53 UTC | Google News | sector | [Meet the volunteers who bring flowers from weddings and funerals to hospice patients - WCAX](https://www.wcax.com/video/2026/10/21/meet-volunteers-who-bring-flowers-weddings-funerals-hospice-patien/?outputType=amp)
