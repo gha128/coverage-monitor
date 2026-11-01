@@ -235,3 +235,4 @@
 - 2026-11-01 15:49 UTC | Google News | sector | [Worcestershire hospice supporters head to China for Great Wall challenge - The Evesham Observer](https://eveshamobserver.co.uk/news/worcestershire-hospice-supporters-head-to-china-for-great-wall-challenge-65251/)
 - 2026-11-01 15:49 UTC | Google News | sector | ['Big Tackle' returns as Rowcroft Hospice aims to raise vital funds - Mid Devon Advertiser](https://www.middevonadvertiser.co.uk/news/rowcroft-hospice-967863)
 - 2026-11-01 15:49 UTC | Google News | sector | [Farmers pause harvest to support hospice - Strathmore Times](https://strathmoretimes.com/2026/farmers-pause-harvest-to-support-hospice/)
+- 2026-11-01 20:15 UTC | Google News | sector | [Springhill Hospice receives £1,500 donation towards running costs - Roch Valley Radio](https://www.rochvalleyradio.com/news-features/153/lifestyle-health/1271/springhill-hospice-receives-1-500-donation-towards-running-costs)
