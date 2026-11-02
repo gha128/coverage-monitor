@@ -240,3 +240,4 @@
 - 2026-11-02 04:45 UTC | Google News | local | [Hospice to host free financial seminar - Woking News and Mail](https://www.wokingnewsandmail.co.uk/news/woking-sam-beare-hospice-goldsworth-park-inheritance-tax-964483)
 - 2026-11-02 13:09 UTC | Google News | sector | [Saint Francis Hospice secures £1m to launch rapid-response care service - Romford Recorder](https://www.romfordrecorder.co.uk/news/26688893.saint-francis-hospice-secures-1m-rapid-care-service/)
 - 2026-11-02 13:09 UTC | Google News | sector | [Proposed site of Niagara Falls residential hospice announced - constructconnect.com](https://canada.constructconnect.com/dcn/news/infrastructure/2026/10/proposed-site-of-niagara-falls-residential-hospice-announced)
+- 2026-11-02 22:25 UTC | Google News | sector | [Rowcroft Hospice launches The Big Tackle 2027 - We Are South Devon](https://wearesouthdevon.com/rowcroft-hospice-launches-the-big-tackle-2027/)
