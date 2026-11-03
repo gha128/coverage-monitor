@@ -249,3 +249,4 @@
 - 2026-11-03 11:39 UTC | Google News | sector | [New 12 bedded unit opens at North West Hospice - Boyle Today](https://www.boyletoday.com/new-12-bedded-unit-opens-at-north-west-hospice/)
 - 2026-11-03 11:39 UTC | Google News | sector | [Breaking down the top 5 myths about hospice - News4JAX](https://www.news4jax.com/river-city-live/2026/10/26/breaking-down-the-top-5-myths-about-hospice/)
 - 2026-11-03 11:39 UTC | Google News | sector | [Filatov shares photos of a devastating Russian strike on a hospice in Dnipro - The New Voice of Ukraine](https://english.nv.ua/nation/photos-show-aftermath-of-russian-strike-on-hospice-in-dnipro-50655801.html)
+- 2026-11-03 19:09 UTC | Google News | sector | [Hospice warns of funding pressures as just 17 per cent comes from statutory sources - Chester Standard](https://www.chesterstandard.co.uk/news/26694655.hospice-faces-funding-pressures-costs-rise-income-falls/)
