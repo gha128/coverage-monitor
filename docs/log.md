@@ -262,3 +262,4 @@
 - 2026-11-06 03:33 UTC | Google News | sector | [Hospice UK slams 'worrying trend' as one million people in last year of life end up in A&Es - AOL.co.uk](https://www.aol.co.uk/articles/hospice-uk-slams-worrying-trend-000307000.html)
 - 2026-11-06 03:33 UTC | Google News | sector | [Hospice of the Valleys, Thrifting 4 Gifting given CID funding - Valley News](https://myvalleynews.com/blog/2026/11/05/hospice-of-the-valleys-thrifting-4-gifting-given-cid-funding/)
 - 2026-11-06 11:51 UTC | Google News | sector | [George Mark Children’s House Raises the Bar on Pediatric Innovation - Hospice News](https://hospicenews.com/2026/11/05/george-mark-childrens-house-raises-the-bar-on-pediatric-innovation/)
+- 2026-11-06 23:41 UTC | Google News | sector | [Public Notice of Hospice Agency Closure - saobserver.com](https://saobserver.com/public-notice-of-hospice-agency-closure/)
