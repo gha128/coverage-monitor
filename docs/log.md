@@ -264,3 +264,6 @@
 - 2026-11-06 11:51 UTC | Google News | sector | [George Mark Children’s House Raises the Bar on Pediatric Innovation - Hospice News](https://hospicenews.com/2026/11/05/george-mark-childrens-house-raises-the-bar-on-pediatric-innovation/)
 - 2026-11-06 23:41 UTC | Google News | sector | [Public Notice of Hospice Agency Closure - saobserver.com](https://saobserver.com/public-notice-of-hospice-agency-closure/)
 - 2026-11-09 10:07 UTC | Google News | local | [Off the charts: Singer joins hospice as patron - Woking News and Mail](https://www.wokingnewsandmail.co.uk/news/chesney-hawkes-singer-actor-one-and-only-970650)
+- 2026-11-09 20:57 UTC | Civil Society | sector | [Celebrity Traitors charities see small donations boost after final - Civil Society Media](https://www.civilsociety.co.uk/news/celebrity-traitors-charities-see-small-donations-boost-after-final.html)
+- 2026-11-09 20:57 UTC | Google News | local | [St Catherine's seeks local Hospice Heroes for 100ft Superhero Abseil Challenge - SussexWorld](https://www.sussexexpress.co.uk/your-world/st-catherines-seeks-local-hospice-heroes-for-100ft-superhero-abseil-challenge-9338638)
+- 2026-11-09 20:57 UTC | Google News | sector | [CMS’ Rural Health Program Builds Momentum - Hospice News](https://hospicenews.com/2026/11/09/cms-rural-health-program-builds-momentum/)
