@@ -263,3 +263,4 @@
 - 2026-11-06 03:33 UTC | Google News | sector | [Hospice of the Valleys, Thrifting 4 Gifting given CID funding - Valley News](https://myvalleynews.com/blog/2026/11/05/hospice-of-the-valleys-thrifting-4-gifting-given-cid-funding/)
 - 2026-11-06 11:51 UTC | Google News | sector | [George Mark Children’s House Raises the Bar on Pediatric Innovation - Hospice News](https://hospicenews.com/2026/11/05/george-mark-childrens-house-raises-the-bar-on-pediatric-innovation/)
 - 2026-11-06 23:41 UTC | Google News | sector | [Public Notice of Hospice Agency Closure - saobserver.com](https://saobserver.com/public-notice-of-hospice-agency-closure/)
+- 2026-11-09 10:07 UTC | Google News | local | [Off the charts: Singer joins hospice as patron - Woking News and Mail](https://www.wokingnewsandmail.co.uk/news/chesney-hawkes-singer-actor-one-and-only-970650)
