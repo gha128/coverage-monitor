@@ -272,3 +272,5 @@
 - 2026-11-10 11:33 UTC | Google News | sector | [Over 100,000 people have spoken. Now both Houses of Parliament want answers on hospice funding - Politics Home](https://www.politicshome.com/opinion/article/100000-people-spoken-now-houses-parliament-want-answers-hospice-funding)
 - 2026-11-10 11:33 UTC | Google News | sector | [Chesterfield’s Ashgate Hospice announces sudden closure of North Derbyshire coffee shop - Derbyshire Times](https://www.derbyshiretimes.co.uk/news/chesterfields-ashgate-hospice-announces-sudden-closure-of-north-derbyshire-coffee-shop-9341088)
 - 2026-11-10 11:33 UTC | Google News | sector | ['Beautiful and peaceful place': St Catherine’s Hospice grounds win top awards - Lancashire Evening Post](https://www.lep.co.uk/news/st-catherines-hospice-awards-north-west-in-bloom-9339636)
+- 2026-11-10 19:23 UTC | Google News | sector | [Are hospices facing a strategic crossroads? - Crowe](https://www.crowe.com/uk/insights/hospices-facing-strategic-crossroads)
+- 2026-11-10 19:23 UTC | Google News | sector | [Hospice expands grief support for youngsters after Children in Need grant - BBC](https://www.bbc.com/news/articles/cm20rej0rz9go)
