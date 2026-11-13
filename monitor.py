@@ -73,6 +73,10 @@ FEEDS = [
     ("Epsom Guardian", "outlet", "https://www.epsomguardian.co.uk/news/rss/"),
     ("MyLondon", "outlet", "https://www.mylondon.news/news/?service=rss"),
     ("BBC Surrey", "outlet", "https://feeds.bbci.co.uk/news/england/surrey/rss.xml"),
+    ("BBC London", "outlet", "https://feeds.bbci.co.uk/news/england/london/rss.xml"),
+    # Google's search doesn't return every outlet's story, so the radio stations and SW Londoner are read directly
+    ("Radio Jackie", "outlet", "https://radiojackie.com/category/local-news/feed/"),
+    ("SW Londoner", "outlet", "https://www.swlondoner.co.uk/feed"),
     # Charity trade press, for its hospice stories only. Civil Society has no RSS feed,
     # so it comes through a Google News search of its site
     ("Civil Society", "trade", google('site:civilsociety.co.uk (hospice OR hospices OR palliative OR "end of life")', 30)),
@@ -121,7 +125,8 @@ LEVELS = [("pah", "PAH"), ("local", "Local hospices"), ("sector", "Hospice secto
 # One line under the buttons saying what the chosen view holds
 NOTES = {
     "pah": "Mentions of Princess Alice Hospice. New ones send a phone alert. Sources: Google News, Bing News, Reddit, "
-           "Surrey Live, Surrey Comet, Richmond & Twickenham Times, Epsom Guardian, MyLondon, BBC Surrey.",
+           "Surrey Live, Surrey Comet, Richmond & Twickenham Times, Epsom Guardian, MyLondon, BBC Surrey, BBC London, "
+           "Radio Jackie, SW Londoner.",
     "local": "Neighbouring hospices: St Catherine's (Crawley), Phyllis Tuckwell, Woking and Sam Beare, Shooting Star, "
              "St Raphael's, Royal Trinity. Sources: Google News, plus the local papers above.",
     "sector": "UK hospice news: funding, closures, beds, service changes. Sources: Google News (BBC, ITV, eHospice and "
@@ -376,6 +381,8 @@ def main():
         or (v["source"] == "Civil Society" and not TRADE_RE.search(v["title"]))))
     seen = state["items"] = dedupe({k: v for k, v in state["items"].items() if keep(v)})
     titles = {norm(v["title"]) for v in seen.values()}
+    # Outlets change headlines, so a story already saved via Google is also matched on its address
+    urls = {v.get("url") for v in seen.values()} - {None}
     # PAH search hits whose page doesn't mention PAH, remembered so they aren't fetched every run
     rejected = state["rejected"] = {k: t for k, t in state.get("rejected", {}).items()
                                     if datetime.fromisoformat(t) >= now_dt - MAX_AGE["pah"] - timedelta(days=1)}
@@ -389,7 +396,7 @@ def main():
         for item in items:
             lvl = classify(kind, item)
             key = item["link"] or item["title"]
-            if not lvl or not key or key in seen or norm(item["title"]) in titles:
+            if not lvl or not key or key in seen or key in urls or norm(item["title"]) in titles:
                 continue
             record = {**item, "source": source, "level": lvl, "seen": now}
             if not fresh(record) or key in rejected:
@@ -403,6 +410,7 @@ def main():
                     rejected[key] = now
                     continue
             titles.add(norm(item["title"]))
+            urls.add(record.get("url"))
             seen[key] = record
             new.append(record)
     # Look up direct links for anything that doesn't have one yet (a few seconds each, so capped)

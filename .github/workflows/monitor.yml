@@ -2,7 +2,8 @@ name: Media monitor
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    # Off the hour and half hour, when GitHub drops the most scheduled runs
+    - cron: "13,43 * * * *"
   workflow_dispatch:
 
 permissions:
