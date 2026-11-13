@@ -295,3 +295,4 @@
 - 2026-11-12 23:59 UTC | Google News | sector | [Orange City Area Health Cuts Ribbon on New Home Health and Hospice HQ - Sioux County Radio](https://siouxcountyradio.com/local-news/orange-city-area-health-cuts-ribbon-on-new-home-health-and-hospice-hq/)
 - 2026-11-12 23:59 UTC | Google News | sector | [Orange City Area Health Cuts Ribbon on New Home Health & Hospice - KIWA Radio](https://kiwaradio.com/news/orange-city-area-health-cuts-ribbon-on-new-home-health-and-hospice/)
 - 2026-11-13 06:24 UTC | Civil Society | sector | [Free ticket concerns at Bafta assessed by Charity Commission - Civil Society Media](https://www.civilsociety.co.uk/news/free-ticket-concerns-at-bafta-assessed-by-charity-commission.html)
+- 2026-11-13 07:12 UTC | Google News | pah | [Relied upon Surrey hospice faces 'painful' staffing cuts as funding falls in cost of living crisis - Surrey Live](https://www.getsurrey.co.uk/news/surrey-news/relied-upon-surrey-hospice-faces-34900761)
