@@ -299,3 +299,5 @@
 - 2026-11-13 13:13 UTC | Google News | pah | [Jobs at risk at Surrey hospice charity facing ‘immense funding challenge’ - Rayo](https://planetradio.co.uk/greatest-hits/surrey-east-hampshire/news/princess-alice-hospice-financial-challenges-consultation)
 - 2026-11-13 13:13 UTC | Google News | pah | [Hospice puts 62 roles at risk to save £3.5m annually - Third Sector](https://www.thirdsector.co.uk/hospice-puts-62-roles-risk-save-35m-annually/finance/article/1975130)
 - 2026-11-13 13:13 UTC | Radio Jackie | pah | [More than 60 jobs could be at risk at Princess Alice Hospice in Esher.](https://radiojackie.com/more-than-60-jobs-could-be-at-risk-at-princess-alice-hospice-in-esher/)
+- 2026-11-13 20:39 UTC | Google News | pah | [More than 60 jobs at risk as hospice proposes cuts - BBC](https://www.bbc.co.uk/news/articles/c6ly7vklw0x1o)
+- 2026-11-13 20:39 UTC | Google News | pah | [More than 60 jobs at risk as Princess Alice Hospice proposes cuts - BBC](http://www.bbc.co.uk/news/articles/c6ly7vklw0x1o)
