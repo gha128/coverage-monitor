@@ -105,11 +105,18 @@ US_STATES = ("Alabama Alaska Arizona Arkansas California Colorado Connecticut De
 US_RE = re.compile(r"\b(" + "|".join(US_STATES) + r"|New York|New Jersey|New Mexico|New Hampshire|"
                    r"North Carolina|South Carolina|North Dakota|South Dakota|Rhode Island|West Virginia|"
                    r"Medicare|Medicaid|U\.S\.|USA|federal|Province|provincial|Canada|Canadian|Australia|"
-                   r"New Zealand|NZ|India|(?<!Northern )Ireland)\b|[$€]")
+                   r"New Zealand|NZ|India|(?<!Northern )Ireland|(?<!Northern )Irish|Dublin|Donegal|Sligo|Roscommon|Leitrim|Mayo|Galway|Limerick|Tipperary|Kilkenny|Wexford|Wicklow|Westmeath|"
+                   r"Ukraine|Ukrainian|"
+                   r"Russia|Russian|Dnipro|CMS|pediatric|program|home health|hospice agency)\b|[$€]", re.I)
 # Items that get past the filters but shouldn't be there; add to these as they turn up
-BLOCKED_SITES = re.compile(r"wjfw\.com", re.I)
+# (hospicenews.com is an American trade site)
+BLOCKED_SITES = re.compile(r"wjfw\.com|hospicenews\.com|hoodline\.com|myvalleynews\.com|saobserver\.com|"
+                           r"siouxcountyradio\.com|kiwaradio\.com|boyletoday\.com", re.I)
 BLOCKED_WORDS = re.compile(r"\bAspirus\b", re.I)
-FOREIGN_TLD = re.compile(r"\.(ca|nz|au|ie|in|us|za)(/|$)")
+FOREIGN_TLD = re.compile(r"\.(ca|nz|au|ie|in|us|za|ua)(/|$)")
+# Civil Society's site search matches 'hospice' anywhere on a page, including its sidebars,
+# so its stories only count if the headline is about hospice care
+TRADE_RE = re.compile(r"\bhospices?\b|palliative|end of life|end-of-life", re.I)
 LEVELS = [("pah", "PAH"), ("local", "Local hospices"), ("sector", "Hospice sector")]
 # One line under the buttons saying what the chosen view holds
 NOTES = {
@@ -189,9 +196,7 @@ def classify(kind, item):
     if any(n.search(blob) and (not p or p.search(blob)) for n, p in LOCAL_RE):
         return "local"
     if kind == "trade":
-        # The site search already asks for hospice stories; skip the site's own pages
-        # ('Event booking', 'Finance'), whose titles are a word or two
-        return "sector" if len(re.sub(r"\s+-\s+[^-]{2,60}$", "", title).split()) >= 4 else None
+        return "sector" if TRADE_RE.search(title) else None
     if kind in ("sector", "outlet") and HOSPICE_RE.search(title if kind == "sector" else blob):
         if US_RE.search(f"{blob} {item.get('outlet', '')}") or FOREIGN_TLD.search(item.get("outlet_url", "")):
             return None
@@ -259,7 +264,8 @@ def on_page(url):
     """Whether the name is in the article's readable text.
 
     Search engines also match words hidden in the page code, such as the description
-    of a sidebar photo, which pulled unrelated Surrey Comet pages into PAH. Structured
+    of a sidebar photo, which pulled unrelated Surrey Comet pages into PAH, and the
+    headlines of other articles in menus and related-story lists. Structured
     data (ld+json) counts, since paywalled sites put the full article there. Keeps the
     item if the page can't be fetched.
     """
@@ -268,7 +274,13 @@ def on_page(url):
     except Exception as e:
         print(f"page check failed, keeping {url}: {e}", file=sys.stderr)
         return True
-    page = re.sub(r"(?is)<script\b(?![^>]*ld\+json)[^>]*>.*?</script>|<(style|noscript)\b.*?</\1>", " ", page)
+    page = re.sub(r"(?is)<script\b(?![^>]*ld\+json)[^>]*>.*?</script>|<(style|noscript|nav|aside|footer)\b.*?</\1>", " ", page)
+    # Links to the site's other articles (previous/next, recent posts, related stories) carry
+    # their headlines, which pulled a blog's parking notice into PAH (12 Nov 2026)
+    host = urllib.parse.urlsplit(url).netloc
+    page = re.sub(r"(?is)<a\b[^>]*href=\"(https?://[^\"]+)\"[^>]*>.*?</a>",
+                  lambda m: " " if urllib.parse.urlsplit(m.group(1)).netloc == host
+                  and m.group(1).split("#")[0].rstrip("/") != url.split("#")[0].rstrip("/") else m.group(0), page)
     return bool(PAH_RE.search(html.unescape(re.sub(r"<[^>]+>", " ", page))))
 
 
@@ -358,7 +370,10 @@ def main():
     now = now_dt.isoformat(timespec="seconds")
     fresh = lambda it: published(it) >= now_dt - MAX_AGE[level(it)]
     # Drop anything that has aged out, so the page and state only hold the look-back window
-    keep = lambda v: fresh(v) and not blocked(v) and not (level(v) == "sector" and US_RE.search(f"{v['title']} {v['summary']} {v.get('outlet', '')}"))
+    keep = lambda v: fresh(v) and not blocked(v) and not (level(v) == "sector" and (
+        US_RE.search(f"{v['title']} {v['summary']} {v.get('outlet', '')}")
+        or FOREIGN_TLD.search(v.get("outlet_url", ""))
+        or (v["source"] == "Civil Society" and not TRADE_RE.search(v["title"]))))
     seen = state["items"] = dedupe({k: v for k, v in state["items"].items() if keep(v)})
     titles = {norm(v["title"]) for v in seen.values()}
     # PAH search hits whose page doesn't mention PAH, remembered so they aren't fetched every run
