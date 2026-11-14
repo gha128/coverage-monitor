@@ -301,3 +301,4 @@
 - 2026-11-13 13:13 UTC | Radio Jackie | pah | [More than 60 jobs could be at risk at Princess Alice Hospice in Esher.](https://radiojackie.com/more-than-60-jobs-could-be-at-risk-at-princess-alice-hospice-in-esher/)
 - 2026-11-13 20:39 UTC | Google News | pah | [More than 60 jobs at risk as hospice proposes cuts - BBC](https://www.bbc.co.uk/news/articles/c6ly7vklw0x1o)
 - 2026-11-13 20:39 UTC | Google News | pah | [More than 60 jobs at risk as Princess Alice Hospice proposes cuts - BBC](http://www.bbc.co.uk/news/articles/c6ly7vklw0x1o)
+- 2026-11-14 01:03 UTC | Google News | sector | [Alexander Devine CEO says hospice funding is in 'dire straits' nationally and urges support for Christmas appeal - Maidenhead Advertiser](https://www.maidenhead-advertiser.co.uk/gallery/charity-and-community/710713/alexander-devine-ceo-says-hospice-funding-is-in-dire-straits-nationally-and-urges-support-for-christmas-appeal.html)
