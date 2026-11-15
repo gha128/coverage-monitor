@@ -307,3 +307,5 @@
 - 2026-11-15 03:05 UTC | Google News | local | [St Catherine’s Hospice Announces New Chief Executive - eHospice](https://ehospice.com/uk_posts/st-catherines-hospice-announces-new-chief-executive/)
 - 2026-11-15 10:48 UTC | Google News | pah | [Surrey hospice faces 'painful' staffing cuts as funding falls in cost of living crisis - Yahoo News UK](https://uk.news.yahoo.com/relied-upon-surrey-hospice-faces-070000436.html)
 - 2026-11-15 10:48 UTC | Google News | sector | [Call for more support for children's hospices hit by NI hike - BBC](https://www.bbc.co.uk/news/articles/c8y5xy2y1232o)
+- 2026-11-15 17:41 UTC | Radio Jackie | sector | [Hundreds of cyclists will take to the streets of South West London next month to provide cheer to seriously ill children.](https://radiojackie.com/hundreds-of-cyclists-will-take-to-the-streets-of-south-west-london-next-month-to-provide-cheer-to-seriously-ill-children/)
+- 2026-11-15 17:41 UTC | Google News | sector | [Dalglish charity donates £1m to struggling hospice - BBC](https://www.bbc.com/news/articles/c9zr572kg20yo)
