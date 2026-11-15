@@ -305,3 +305,5 @@
 - 2026-11-14 07:36 UTC | Google News | local | [Kirsty’s world record is boost for hospice - Woking News and Mail](https://www.wokingnewsandmail.co.uk/news/guinness-world-records-woking-sam-beare-hospice-972134)
 - 2026-11-14 14:31 UTC | Google News | pah | [Jobs at risk at Surrey hospice charity facing ‘immense funding challenge’ | News - Hits Radio (Surrey & East Hampshire) - Rayo](https://www.hellorayo.co.uk/hits-radio/surrey-east-hampshire/news/princess-alice-hospice-financial-challenges-consultation)
 - 2026-11-15 03:05 UTC | Google News | local | [St Catherine’s Hospice Announces New Chief Executive - eHospice](https://ehospice.com/uk_posts/st-catherines-hospice-announces-new-chief-executive/)
+- 2026-11-15 10:48 UTC | Google News | pah | [Surrey hospice faces 'painful' staffing cuts as funding falls in cost of living crisis - Yahoo News UK](https://uk.news.yahoo.com/relied-upon-surrey-hospice-faces-070000436.html)
+- 2026-11-15 10:48 UTC | Google News | sector | [Call for more support for children's hospices hit by NI hike - BBC](https://www.bbc.co.uk/news/articles/c8y5xy2y1232o)
