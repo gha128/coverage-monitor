@@ -322,3 +322,5 @@
 - 2026-11-17 20:52 UTC | Google News | sector | [Ramsdens exceeds hospice fundraising goal - Bdaily](https://bdaily.co.uk/articles/2026/11/17/ramsdens-exceeds-hospice-fundraising-goal)
 - 2026-11-17 20:52 UTC | Google News | sector | [Funding gap blocks Highland Hospice end-of-life care at home service in far north - Northern Times](https://www.northern-times.co.uk/news/funding-gap-blocks-highland-hospice-end-of-life-care-at-home-450376/)
 - 2026-11-17 20:52 UTC | Google News | sector | [Hospice UK Raises Eyebrows With ITV Journalist Invite - Guido Fawkes](https://order-order.com/2026/11/17/hospice-uk-raises-eyebrows-with-itv-journalist-invite/)
+- 2026-11-18 02:53 UTC | Google News | local | [Hospice UK 2026 award winners announced - eHospice](https://ehospice.com/uk_posts/hospice-uk-2026-award-winners-announced/)
+- 2026-11-18 02:53 UTC | Google News | sector | [Hospice UK responds to the Autumn Budget 2026 - eHospice](https://ehospice.com/uk_posts/hospice-uk-responds-to-the-autumn-budget-2026/)
