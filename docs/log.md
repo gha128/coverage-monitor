@@ -325,3 +325,5 @@
 - 2026-11-18 02:53 UTC | Google News | local | [Hospice UK 2026 award winners announced - eHospice](https://ehospice.com/uk_posts/hospice-uk-2026-award-winners-announced/)
 - 2026-11-18 02:53 UTC | Google News | sector | [Hospice UK responds to the Autumn Budget 2026 - eHospice](https://ehospice.com/uk_posts/hospice-uk-responds-to-the-autumn-budget-2026/)
 - 2026-11-18 11:37 UTC | Google News | sector | [Our hospices deserve more than warm political gestures - Ludlow & Tenbury Wells Advertiser](https://www.ludlowadvertiser.co.uk/news/26735937.letter-calls-reliable-long-term-hospice-funding/)
+- 2026-11-18 19:35 UTC | Civil Society | sector | [Hospice charity receives ‘lifeline’ £1m donation - Civil Society Media](https://www.civilsociety.co.uk/news/hospice-charity-receives-lifeline-1m-donation.html)
+- 2026-11-18 19:35 UTC | Google News | sector | [Chesterfield’s Ashgate Hospice opens additional beds thanks to fundraising efforts - Derbyshire Times](https://www.derbyshiretimes.co.uk/news/chesterfields-ashgate-hospice-opens-two-additional-beds-thanks-to-fundraising-efforts-9358521)
