@@ -324,3 +324,4 @@
 - 2026-11-17 20:52 UTC | Google News | sector | [Hospice UK Raises Eyebrows With ITV Journalist Invite - Guido Fawkes](https://order-order.com/2026/11/17/hospice-uk-raises-eyebrows-with-itv-journalist-invite/)
 - 2026-11-18 02:53 UTC | Google News | local | [Hospice UK 2026 award winners announced - eHospice](https://ehospice.com/uk_posts/hospice-uk-2026-award-winners-announced/)
 - 2026-11-18 02:53 UTC | Google News | sector | [Hospice UK responds to the Autumn Budget 2026 - eHospice](https://ehospice.com/uk_posts/hospice-uk-responds-to-the-autumn-budget-2026/)
+- 2026-11-18 11:37 UTC | Google News | sector | [Our hospices deserve more than warm political gestures - Ludlow & Tenbury Wells Advertiser](https://www.ludlowadvertiser.co.uk/news/26735937.letter-calls-reliable-long-term-hospice-funding/)
