@@ -353,3 +353,4 @@
 - 2026-11-25 02:46 UTC | Google News | sector | [Data reveals disparities in funding for adult hospice care - Caring Times](https://caring-times.co.uk/data-reveals-disparities-in-funding-for-adult-hospice-care/)
 - 2026-11-25 12:48 UTC | Google News | sector | [Huge differences in ICB hospice funding revealed - Healthcare Management Magazine](https://www.healthcare-management.uk/huge-differences-icb-hospice-funding-revealed)
 - 2026-11-25 12:48 UTC | Google News | sector | [Group raising funds and awareness for Salmon Arm hospice home - Salmon Arm Observer](https://saobserver.net/2026/11/25/group-raising-funds-and-awareness-for-salmon-arm-hospice-home/)
+- 2026-11-25 22:29 UTC | Google News | sector | [Amvis closes ¥17.4bn sale of 47 hospice homes and guides to a profit rise on shrinking sales - Tokyo Brief](https://tokyobrief.com/articles/amvis-closes-hospice-home-sale-profit-guide)
