@@ -355,3 +355,4 @@
 - 2026-11-25 12:48 UTC | Google News | sector | [Group raising funds and awareness for Salmon Arm hospice home - Salmon Arm Observer](https://saobserver.net/2026/11/25/group-raising-funds-and-awareness-for-salmon-arm-hospice-home/)
 - 2026-11-25 22:29 UTC | Google News | sector | [Amvis closes ¥17.4bn sale of 47 hospice homes and guides to a profit rise on shrinking sales - Tokyo Brief](https://tokyobrief.com/articles/amvis-closes-hospice-home-sale-profit-guide)
 - 2026-11-26 14:28 UTC | Google News | sector | [Wiltshire hospice leaders back five-year plan to transform end-of-life care - The Wiltshire Gazette and Herald](https://www.gazetteandherald.co.uk/news/26762811.wiltshire-hospice-leaders-back-end-of-life-care-plan/)
+- 2026-11-26 23:17 UTC | Google News | sector | [Fourfold Funding Gap for Adult Hospices in England - The Carer](https://thecareruk.com/fourfold-funding-gap-for-adult-hospices-in-england/)
